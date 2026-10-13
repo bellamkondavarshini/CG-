@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Computer Graphics, Unit 4: 3-D Viewing (Classroom Notes)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#f4f7fb; --surface:#ffffff; --ink:#14213d; --muted:#4f5b76; --line:#d5ddeb;
+  --teal:#0b8f8c; --teal-bg:#dff4f3;
+  --amber:#c98a00; --amber-bg:#fff2cf;
+  --coral:#e04a22; --coral-bg:#fde6df;
+  --violet:#6a4bc4; --violet-bg:#ebe6fa;
+  --blue:#2563eb; --blue-bg:#e2ebff;
+  --hero:#14213d; --hero-ink:#ffffff;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1525; --surface:#162038; --ink:#e8ecf6; --muted:#a3aec7; --line:#2b3654;
+    --teal:#3fcfca; --teal-bg:#12302f;
+    --amber:#f3bb33; --amber-bg:#3a2f10;
+    --coral:#ff8d69; --coral-bg:#3c201a;
+    --violet:#a98ff2; --violet-bg:#2a2250;
+    --blue:#78a6ff; --blue-bg:#16264a;
+    --hero:#0a1020; --hero-ink:#ffffff;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1525; --surface:#162038; --ink:#e8ecf6; --muted:#a3aec7; --line:#2b3654;
+  --teal:#3fcfca; --teal-bg:#12302f;
+  --amber:#f3bb33; --amber-bg:#3a2f10;
+  --coral:#ff8d69; --coral-bg:#3c201a;
+  --violet:#a98ff2; --violet-bg:#2a2250;
+  --blue:#78a6ff; --blue-bg:#16264a;
+  --hero:#0a1020; --hero-ink:#ffffff;
+}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 12px);scroll-behavior:smooth}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Source Sans 3","Segoe UI",Roboto,Arial,sans-serif;font-size:1.06rem;line-height:1.6;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+h1,h2,h3,h4{font-family:"Bricolage Grotesque","Segoe UI",Arial,sans-serif;line-height:1.2;margin:0}
+p{margin:.6rem 0}
+ul,ol{margin:.5rem 0;padding-left:1.35rem}
+li{margin:.25rem 0}
+a{color:var(--blue)}
+mark{background:var(--amber-bg);color:var(--ink);padding:0 .25em;border-radius:3px;border-bottom:2px solid var(--amber);font-weight:600}
+sub,sup{line-height:0}
+code{font-family:ui-monospace,Consolas,Menlo,monospace;font-size:.92em;background:var(--blue-bg);padding:.05em .35em;border-radius:4px}
+
+/* hero */
+.hero{background:var(--hero);color:var(--hero-ink);padding:2.2rem 1.2rem 2rem}
+.hero-in{max-width:920px;margin:0 auto;display:grid;grid-template-columns:1.4fr 1fr;gap:1.2rem;align-items:center}
+.hero h1{font-size:clamp(1.8rem,4.6vw,2.7rem);font-weight:800;letter-spacing:-.01em}
+.hero .sub{margin-top:.7rem;color:#c9d3ea;font-size:1.08rem}
+.chips{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:1rem}
+.chip{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.28);padding:.18rem .7rem;border-radius:99px;font-size:.92rem;color:#fff}
+.hero svg{width:100%;height:auto}
+
+main{max-width:920px;margin:0 auto;padding:1.2rem 1rem 3rem}
+.note{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:.8rem 1rem;color:var(--muted);font-size:.98rem}
+.goals{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:.7rem;margin:1rem 0}
+.goal{background:var(--surface);border:1px solid var(--line);border-left:6px solid var(--teal);border-radius:10px;padding:.6rem .8rem;font-size:.98rem}
+.goal:nth-child(2){border-left-color:var(--coral)}
+.goal:nth-child(3){border-left-color:var(--violet)}
+.goal:nth-child(4){border-left-color:var(--amber)}
+.goal:nth-child(5){border-left-color:var(--blue)}
+.toc{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:.4rem .8rem;list-style:none;padding:0;margin:.6rem 0 0}
+.toc a{display:flex;gap:.6rem;align-items:center;text-decoration:none;color:var(--ink);padding:.3rem .5rem;border-radius:8px}
+.toc a:hover{background:var(--blue-bg)}
+.toc b{min-width:1.9rem;height:1.9rem;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:.9rem;background:var(--c,var(--teal))}
+
+/* sections */
+.sec{--accent:var(--teal);--accent-bg:var(--teal-bg);margin-top:2.4rem}
+.s2{--accent:var(--coral);--accent-bg:var(--coral-bg)}
+.s3{--accent:var(--violet);--accent-bg:var(--violet-bg)}
+.s4{--accent:var(--blue);--accent-bg:var(--blue-bg)}
+.s5{--accent:var(--amber);--accent-bg:var(--amber-bg)}
+.sec-h{display:flex;align-items:center;gap:.8rem;background:var(--accent);color:#fff;border-radius:14px;padding:.7rem 1rem;break-after:avoid}
+html:not([data-x]) .sec.s5 .sec-h{color:#1b1500}
+.sec-h .n{flex:none;width:2.4rem;height:2.4rem;border-radius:50%;background:rgba(255,255,255,.92);color:#14213d;display:grid;place-items:center;font-family:"Bricolage Grotesque",sans-serif;font-weight:800}
+.sec-h h2{font-size:clamp(1.25rem,3.2vw,1.65rem);font-weight:800}
+.sec h3{font-size:1.25rem;margin:1.4rem 0 .3rem;color:var(--accent);padding-bottom:.15rem;border-bottom:3px solid var(--accent-bg);break-after:avoid}
+.sec h4{font-size:1.06rem;margin:1rem 0 .2rem}
+
+/* boxes */
+.box{border-radius:12px;padding:.7rem 1rem .8rem;margin:1rem 0;border:1px solid var(--line);border-left:7px solid var(--bc);background:var(--bb);break-inside:avoid}
+.box>.bt{display:block;font-family:"Bricolage Grotesque",sans-serif;font-weight:700;margin-bottom:.15rem;color:var(--bc)}
+.box p:last-child,.box ul:last-child,.box ol:last-child{margin-bottom:0}
+.def{--bc:var(--teal);--bb:var(--teal-bg)}
+.key{--bc:var(--amber);--bb:var(--amber-bg)}
+.ex{--bc:var(--violet);--bb:var(--violet-bg)}
+.real{--bc:var(--blue);--bb:var(--blue-bg)}
+.warn{--bc:var(--coral);--bb:var(--coral-bg)}
+
+/* tables */
+.tw{overflow-x:auto;margin:1rem 0;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+table.cmp{border-collapse:collapse;width:100%;min-width:560px;font-size:.98rem}
+.cmp caption{caption-side:top;text-align:left;font-family:"Bricolage Grotesque",sans-serif;font-weight:700;padding:.5rem .8rem;color:var(--accent)}
+.cmp th{background:var(--accent);color:#fff;text-align:left;padding:.5rem .7rem;font-weight:700}
+html:not([data-x]) .s5 .cmp th{color:#1b1500}
+.cmp td{padding:.45rem .7rem;border-top:1px solid var(--line);vertical-align:top}
+.cmp tbody tr:nth-child(even) td{background:var(--accent-bg)}
+.cmp td:first-child{font-weight:600}
+
+/* matrices and equations */
+.eq{display:flex;flex-wrap:wrap;align-items:center;gap:.25rem .4rem;margin:.6rem 0;padding:.5rem .8rem;background:var(--surface);border:1px dashed var(--line);border-radius:10px;overflow-x:auto;font-size:1.05rem}
+.eq.col{display:block}
+table.mat{display:inline-table;border-collapse:separate;border-spacing:.7em .12em;border-left:2px solid var(--ink);border-right:2px solid var(--ink);border-radius:7px;margin:0 .25em;vertical-align:middle;font-variant-numeric:tabular-nums}
+.mat td{text-align:center;padding:.04em .15em;white-space:nowrap}
+
+/* figures */
+figure{margin:1.1rem 0;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:.7rem;break-inside:avoid}
+figure svg{display:block;width:100%;height:auto;max-width:640px;margin:0 auto}
+figcaption{text-align:center;color:var(--muted);font-size:.95rem;margin-top:.4rem}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+.duo svg{max-width:100%}
+svg text{fill:var(--ink);font-family:"Source Sans 3","Segoe UI",Arial,sans-serif;font-size:14px}
+svg .tb{font-weight:700}
+svg .tm{fill:var(--muted);font-size:12.5px}
+svg .ln{stroke:var(--ink);stroke-width:2;fill:none}
+svg .th{stroke:var(--ink);stroke-width:1.2;fill:none}
+svg .ds{stroke:var(--muted);stroke-width:1.6;fill:none;stroke-dasharray:6 5}
+svg .sb{stroke:var(--blue);stroke-width:2.6;fill:none}
+svg .sc{stroke:var(--coral);stroke-width:2.6;fill:none}
+svg .st{stroke:var(--teal);stroke-width:2.6;fill:none}
+svg .sv{stroke:var(--violet);stroke-width:2.6;fill:none}
+svg .sa{stroke:var(--amber);stroke-width:3;fill:none}
+svg .fa{fill:var(--amber-bg);stroke:var(--amber);stroke-width:2}
+svg .fb{fill:var(--blue-bg);stroke:var(--blue);stroke-width:2}
+
+/* pipeline */
+.pipe{list-style:none;padding:0;margin:1rem 0;display:flex;flex-direction:column;align-items:stretch;max-width:640px;margin-inline:auto}
+.pipe li{margin:0}
+.space{border-radius:12px;padding:.55rem .9rem;border:2px solid var(--pc);background:var(--pb)}
+.space b{font-family:"Bricolage Grotesque",sans-serif;color:var(--pc)}
+.space span{display:block;font-size:.95rem;color:var(--muted)}
+.op{display:flex;align-items:center;gap:.6rem;padding:.25rem 0 .25rem 1.4rem;color:var(--ink);font-size:.97rem}
+.op::before{content:"";flex:none;width:3px;height:2.1rem;background:var(--ink);opacity:.55;border-radius:2px;margin-right:.3rem}
+.op::after{content:"";order:-1;display:none}
+.op em{font-style:normal;font-weight:700}
+.p1{--pc:var(--teal);--pb:var(--teal-bg)}
+.p2{--pc:var(--blue);--pb:var(--blue-bg)}
+.p3{--pc:var(--violet);--pb:var(--violet-bg)}
+.p4{--pc:var(--amber);--pb:var(--amber-bg)}
+.p5{--pc:var(--coral);--pb:var(--coral-bg)}
+.p6{--pc:var(--ink);--pb:var(--surface)}
+
+/* projection tree */
+.tree{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin:1rem 0}
+.tcol{border-radius:12px;padding:.6rem .8rem;border:2px solid var(--tc);background:var(--tb)}
+.tcol>b{display:block;font-family:"Bricolage Grotesque",sans-serif;color:var(--tc);font-size:1.1rem}
+.tcol .sub{margin:.4rem 0 0;padding:.35rem .6rem;border-radius:8px;background:var(--surface);border:1px solid var(--line);font-size:.95rem}
+.tcol .sub b{color:var(--ink)}
+.t-par{--tc:var(--teal);--tb:var(--teal-bg)}
+.t-per{--tc:var(--coral);--tb:var(--coral-bg)}
+
+/* bits */
+.bits{display:grid;grid-template-columns:repeat(6,1fr);gap:.35rem;margin:.8rem 0;text-align:center}
+.bits div{border-radius:8px;padding:.35rem .1rem;background:var(--surface);border:2px solid var(--bcc);font-size:.88rem;line-height:1.25}
+.bits b{display:block;font-family:"Bricolage Grotesque",sans-serif;font-size:1.15rem;color:var(--bcc)}
+.bits div:nth-child(1){--bcc:var(--teal)}.bits div:nth-child(2){--bcc:var(--blue)}.bits div:nth-child(3){--bcc:var(--violet)}
+.bits div:nth-child(4){--bcc:var(--coral)}.bits div:nth-child(5){--bcc:var(--amber)}.bits div:nth-child(6){--bcc:var(--ink)}
+
+/* Q&A */
+.qa{margin:.7rem 0;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:.6rem .9rem;break-inside:avoid}
+.qa .q{font-weight:700;font-family:"Bricolage Grotesque",sans-serif}
+.qa .a{margin-top:.2rem;color:var(--ink)}
+.qa .a::before{content:"Answer: ";font-weight:700;color:var(--accent)}
+.qlist{counter-reset:q;list-style:none;padding:0}
+.qlist>li{counter-increment:q;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:.7rem .9rem .7rem 3.1rem;position:relative;margin:.7rem 0;break-inside:avoid}
+.qlist>li::before{content:counter(q);position:absolute;left:.8rem;top:.7rem;width:1.7rem;height:1.7rem;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:800;font-family:"Bricolage Grotesque",sans-serif;font-size:.95rem}
+html:not([data-x]) .s5 .qlist>li::before{color:#1b1500}
+.hint{display:block;margin-top:.3rem;color:var(--muted);font-size:.96rem}
+.steps{counter-reset:s;list-style:none;padding:0}
+.steps>li{counter-increment:s;position:relative;padding-left:2.4rem;margin:.55rem 0}
+.steps>li::before{content:counter(s);position:absolute;left:0;top:.05rem;width:1.7rem;height:1.7rem;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:800;font-size:.9rem}
+.tip{color:var(--muted);font-size:.95rem}
+
+footer{max-width:920px;margin:0 auto;padding:1rem 1rem 2.5rem;color:var(--muted);font-size:.92rem;text-align:center}
+
+@media (max-width:700px){
+  .hero-in{grid-template-columns:1fr}
+  .duo,.tree{grid-template-columns:1fr}
+  .bits{grid-template-columns:repeat(3,1fr)}
+}
+
+/* print: always light and colourful */
+@page{size:A4;margin:12mm}
+@media print{
+  :root:not([data-theme="zzz"]),:root[data-theme="dark"]{
+    --bg:#ffffff; --surface:#ffffff; --ink:#14213d; --muted:#4f5b76; --line:#d5ddeb;
+    --teal:#0b8f8c; --teal-bg:#dff4f3; --amber:#c98a00; --amber-bg:#fff2cf;
+    --coral:#e04a22; --coral-bg:#fde6df; --violet:#6a4bc4; --violet-bg:#ebe6fa;
+    --blue:#2563eb; --blue-bg:#e2ebff; --hero:#14213d; --hero-ink:#ffffff;
+  }
+  body{font-size:10.3pt;line-height:1.45}
+  .noprint{display:none!important}
+  .hero{padding:1.2rem}
+  .sec{margin-top:1.4rem}
+  .sec.pb{break-before:page}
+  .tw{overflow:visible}
+  table.cmp{min-width:0;font-size:9.4pt}
+  tr{break-inside:avoid}
+  main{padding:0}
+}
+</style>
+</head>
+<body>
+
+<!-- shared arrow markers -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <marker id="ah-ink" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--ink)"/></marker>
+    <marker id="ah-blue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--blue)"/></marker>
+    <marker id="ah-coral" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--coral)"/></marker>
+    <marker id="ah-teal" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--teal)"/></marker>
+    <marker id="ah-violet" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--violet)"/></marker>
+  </defs>
+</svg>
+
+<header class="hero">
+  <div class="hero-in">
+    <div>
+      <h1>3-D viewing: pipeline, viewing coordinates, view volume, projections and clipping</h1>
+      <p class="sub">Computer Graphics · Unit 4 · Classroom notes for B.Tech CSE, 3rd year</p>
+      <div class="chips">
+        <span class="chip">Basic to advanced</span>
+        <span class="chip">Worked numericals</span>
+        <span class="chip">Exam and interview questions</span>
+        <span class="chip">5-minute activity</span>
+      </div>
+    </div>
+    <svg viewBox="0 0 340 220" role="img" aria-label="A camera at the left looking through a view volume shaped like a pyramid with its tip cut off, containing a square and a circle">
+      <polygon points="120,92 300,20 300,200 120,128" fill="#f3bb33" fill-opacity=".28" stroke="#f3bb33" stroke-width="2.5"/>
+      <line x1="30" y1="110" x2="120" y2="92" stroke="#f3bb33" stroke-width="2.5"/>
+      <line x1="30" y1="110" x2="120" y2="128" stroke="#f3bb33" stroke-width="2.5"/>
+      <line x1="120" y1="92" x2="120" y2="128" stroke="#fff" stroke-width="3"/>
+      <line x1="300" y1="20" x2="300" y2="200" stroke="#fff" stroke-width="3"/>
+      <rect x="190" y="82" width="38" height="38" fill="#3fcfca" stroke="#fff" stroke-width="2"/>
+      <circle cx="262" cy="130" r="20" fill="#ff8d69" stroke="#fff" stroke-width="2"/>
+      <circle cx="30" cy="110" r="9" fill="#fff"/>
+      <text x="14" y="140" style="fill:#c9d3ea;font-size:13px">eye</text>
+      <text x="96" y="82" style="fill:#c9d3ea;font-size:13px">near</text>
+      <text x="282" y="14" style="fill:#c9d3ea;font-size:13px">far</text>
+    </svg>
+  </div>
+</header>
+
+<main>
+  <p class="note">A note before you start: names of coordinate systems, the sign of the z-axis and the exact point where clipping happens are <mark>different in different textbooks and graphics APIs</mark>. These notes use one clear convention and tell you where others differ. For your exams, follow the notation of your prescribed textbook and syllabus.</p>
+
+  <section class="sec" style="margin-top:1.4rem">
+    <h3 style="margin-top:0">What you will be able to do</h3>
+    <div class="goals">
+      <div class="goal">Explain every stage of the 3-D viewing pipeline in order.</div>
+      <div class="goal">Build the viewing (camera) coordinate system from a point and two vectors.</div>
+      <div class="goal">Describe parallel and perspective view volumes.</div>
+      <div class="goal">Derive and use parallel and perspective projection equations.</div>
+      <div class="goal">Clip lines and polygons against a 3-D view volume.</div>
+    </div>
+    <h3>Contents</h3>
+    <ol class="toc noprint">
+      <li><a href="#s1" style="--c:var(--teal)"><b>1</b>The big picture</a></li>
+      <li><a href="#s2" style="--c:var(--coral)"><b>2</b>The viewing pipeline</a></li>
+      <li><a href="#s3" style="--c:var(--violet)"><b>3</b>Viewing coordinates</a></li>
+      <li><a href="#s4" style="--c:var(--blue)"><b>4</b>View volume</a></li>
+      <li><a href="#s5" style="--c:var(--amber)"><b>5</b>Types of projection</a></li>
+      <li><a href="#s6" style="--c:var(--teal)"><b>6</b>Projection transforms (maths)</a></li>
+      <li><a href="#s7" style="--c:var(--coral)"><b>7</b>Normalisation, canonical volume</a></li>
+      <li><a href="#s8" style="--c:var(--violet)"><b>8</b>3-D clipping</a></li>
+      <li><a href="#s9" style="--c:var(--blue)"><b>9</b>Putting it all together</a></li>
+      <li><a href="#s10" style="--c:var(--amber)"><b>10</b>Common student mistakes</a></li>
+      <li><a href="#s11" style="--c:var(--teal)"><b>11</b>Interview questions</a></li>
+      <li><a href="#s12" style="--c:var(--coral)"><b>12</b>University exam questions</a></li>
+      <li><a href="#s13" style="--c:var(--violet)"><b>13</b>5-minute classroom activity</a></li>
+      <li><a href="#s14" style="--c:var(--blue)"><b>14</b>Short recap</a></li>
+      <li><a href="#s15" style="--c:var(--amber)"><b>15</b>Five long-answer questions</a></li>
+    </ol>
+    <p class="tip noprint">Tip: to make a PDF, open this page on a computer and use your browser's Print option, then choose "Save as PDF". Colours are kept.</p>
+  </section>
+
+  <!-- ===================== 1 ===================== -->
+  <section class="sec" id="s1">
+    <div class="sec-h"><span class="n">1</span><h2>The big picture: from a 3-D world to a 2-D screen</h2></div>
+
+    <p>A computer screen is flat (2-D), but a game, a CAD model or a movie scene is 3-D. Something must decide <b>which part</b> of the 3-D scene we see, <b>from where</b>, and <b>how it is flattened</b> onto the screen. That whole job is called <b>3-D viewing</b>.</p>
+
+    <div class="box def"><span class="bt">Definition: 3-D viewing</span>
+      <p>3-D viewing is the set of operations that specify a viewer's position and direction, choose a type of projection, select the part of the scene that is visible, and map that part to a 2-D display region.</p>
+    </div>
+
+    <h3>The camera analogy</h3>
+    <p>The easiest way to remember the viewing steps is to think of taking a photograph.</p>
+    <div class="tw"><table class="cmp">
+      <caption>Taking a photo and rendering a 3-D scene follow the same steps</caption>
+      <thead><tr><th>Photographer's action</th><th>Graphics step</th><th>Key idea</th></tr></thead>
+      <tbody>
+        <tr><td>Arrange the objects in the scene</td><td>Modeling transformation</td><td>Place each object in the world</td></tr>
+        <tr><td>Stand somewhere and point the camera</td><td>Viewing transformation</td><td>Defines the viewing (camera) coordinates</td></tr>
+        <tr><td>Pick a lens (zoom, wide-angle, or "flat" technical drawing)</td><td>Projection transformation</td><td>Perspective or parallel</td></tr>
+        <tr><td>What fits inside the frame, not too close, not too far</td><td>View volume and clipping</td><td>Discard everything outside</td></tr>
+        <tr><td>Print the photo at a chosen size</td><td>Viewport (device) transformation</td><td>Map to pixels</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="box real"><span class="bt">Real-world examples</span>
+      <ul>
+        <li><b>First-person game:</b> the camera sits at the player's eyes, uses perspective, and objects too close to the face are cut off.</li>
+        <li><b>CAD drawing of a machine part:</b> engineers use parallel (orthographic) views so that measurements stay true.</li>
+        <li><b>Architecture walkthrough or VR:</b> perspective gives a realistic sense of depth.</li>
+        <li><b>Isometric city-builder games:</b> parallel projection gives a neat, evenly-scaled look.</li>
+      </ul>
+    </div>
+
+    <h3>Why is 3-D viewing harder than 2-D viewing?</h3>
+    <div class="tw"><table class="cmp">
+      <caption>2-D viewing compared with 3-D viewing</caption>
+      <thead><tr><th>Point</th><th>2-D viewing</th><th>3-D viewing</th></tr></thead>
+      <tbody>
+        <tr><td>Viewer's position</td><td>Not needed</td><td>Needed (where is the camera?)</td></tr>
+        <tr><td>Viewing direction</td><td>Not needed</td><td>Needed (where is it pointing? which way is up?)</td></tr>
+        <tr><td>Projection</td><td>Not needed</td><td>Needed (3-D to 2-D)</td></tr>
+        <tr><td>Clipping region</td><td>2-D window (rectangle)</td><td>3-D view volume (box or truncated pyramid)</td></tr>
+        <tr><td>Clip against</td><td>4 edges</td><td>6 planes</td></tr>
+        <tr><td>Final mapping</td><td>Window to viewport</td><td>View volume to projection plane to viewport</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ===================== 2 ===================== -->
+  <section class="sec s2" id="s2">
+    <div class="sec-h"><span class="n">2</span><h2>The 3-D viewing pipeline</h2></div>
+
+    <div class="box def"><span class="bt">Definition: viewing pipeline</span>
+      <p>The viewing pipeline is the ordered sequence of coordinate systems and transformations that convert an object's description into positions on the display device.</p>
+    </div>
+
+    <p>Read the figure from top to bottom. <b>Boxes are coordinate systems; arrows are the transformations</b> that move a point from one system to the next.</p>
+
+    <figure>
+      <ol class="pipe">
+        <li class="space p1"><b>Modeling coordinates (MC)</b><span>Also called local or object coordinates. A toy car is drawn with its own origin at its centre.</span></li>
+        <li class="op"><span><em>Modeling transformation</em>: scale, rotate, translate each object into the scene</span></li>
+        <li class="space p2"><b>World coordinates (WC)</b><span>One common space for all objects, e.g. the car is on a street.</span></li>
+        <li class="op"><span><em>Viewing transformation</em>: move and turn the world so the camera is at the origin</span></li>
+        <li class="space p3"><b>Viewing coordinates (VC)</b><span>Also called eye or camera coordinates. The camera is the origin.</span></li>
+        <li class="op"><span><em>Projection transformation</em>: 3-D to 2-D (parallel or perspective)</span></li>
+        <li class="space p4"><b>Projection coordinates, then normalised projection coordinates</b><span>Normalisation fits the view volume into a standard (canonical) box. Clipping is done against this box.</span></li>
+        <li class="op"><span><em>Clipping</em>, then <em>viewport (workstation) transformation</em></span></li>
+        <li class="space p5"><b>Device coordinates (DC)</b><span>Pixel positions on the screen or window.</span></li>
+      </ol>
+      <figcaption>Figure 1: The 3-D viewing pipeline</figcaption>
+    </figure>
+
+    <div class="tw"><table class="cmp">
+      <caption>Coordinate systems in the pipeline</caption>
+      <thead><tr><th>Coordinate system</th><th>Other names</th><th>Origin is at</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td>Modeling</td><td>Local, object</td><td>Object's own reference point</td><td>Car's centre</td></tr>
+        <tr><td>World</td><td>Global, scene</td><td>Scene's chosen origin</td><td>Centre of the city map</td></tr>
+        <tr><td>Viewing</td><td>Eye, camera</td><td>The viewer (camera)</td><td>Driver's eyes</td></tr>
+        <tr><td>Projection / normalised</td><td>Clip space, NDC (in some APIs)</td><td>Centre of the view volume</td><td>Standard cube</td></tr>
+        <tr><td>Device</td><td>Screen, window</td><td>A corner of the display area</td><td>Pixel (280, 120)</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="box key"><span class="bt">Important points</span>
+      <ul>
+        <li>Each arrow in the pipeline is a <mark>matrix multiplication</mark>, so the whole pipeline can be combined into one matrix (except the perspective divide and clipping steps).</li>
+        <li><b>Where clipping happens varies.</b> Many textbooks clip against the normalised (canonical) volume. OpenGL clips in "clip coordinates", before the perspective divide. The idea is the same: throw away what is outside the view volume. Use your textbook's order in the exam.</li>
+        <li>Modeling transformation positions <b>objects</b>. Viewing transformation positions the <b>camera</b>. Do not mix them up.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ===================== 3 ===================== -->
+  <section class="sec s3" id="s3">
+    <div class="sec-h"><span class="n">3</span><h2>Viewing coordinates (the camera system)</h2></div>
+
+    <p>To place a camera we answer three questions: <b>Where is it? Where does it look? Which way is up?</b> Together these define a new coordinate system with the camera at its origin.</p>
+
+    <div class="box def"><span class="bt">Definitions</span>
+      <ul>
+        <li><b>View reference point (VRP), P<sub>0</sub>:</b> the position of the viewer or camera (the "eye"), P<sub>0</sub> = (x<sub>0</sub>, y<sub>0</sub>, z<sub>0</sub>) in world coordinates.</li>
+        <li><b>View-plane normal vector, N:</b> the direction perpendicular to the view plane. It points <i>toward the viewer</i>, so the camera looks along <b>−N</b>.</li>
+        <li><b>View-up vector, V:</b> the direction we want to appear as "up" on the screen.</li>
+        <li><b>Viewing (uvn) coordinate system:</b> a right-handed system with three perpendicular unit axes <b>u</b> (right), <b>v</b> (up) and <b>n</b> (toward viewer).</li>
+      </ul>
+    </div>
+
+    <figure>
+      <svg viewBox="0 0 560 330" role="img" aria-label="World axes at left, a viewing reference point with u, v, n axes, and a dashed line of sight to a look-at point">
+        <!-- world axes -->
+        <line class="sb" x1="50" y1="130" x2="135" y2="130" marker-end="url(#ah-blue)"/>
+        <line class="sb" x1="50" y1="130" x2="50" y2="45" marker-end="url(#ah-blue)"/>
+        <line class="sb" x1="50" y1="130" x2="12" y2="172" marker-end="url(#ah-blue)"/>
+        <text x="140" y="135">x<tspan dy="4" font-size="11">w</tspan></text>
+        <text x="58" y="48">y<tspan dy="4" font-size="11">w</tspan></text>
+        <text x="0" y="190">z<tspan dy="4" font-size="11">w</tspan></text>
+        <text class="tm" x="40" y="22">World axes</text>
+        <!-- vector origin to P0 -->
+        <line class="ds" x1="50" y1="130" x2="298" y2="198"/>
+        <text class="tm" x="120" y="175" transform="rotate(15 120 175)">vector to P₀</text>
+        <!-- uvn -->
+        <line class="sc" x1="300" y1="200" x2="410" y2="200" marker-end="url(#ah-coral)"/>
+        <line class="st" x1="300" y1="200" x2="300" y2="95" marker-end="url(#ah-teal)"/>
+        <line class="sv" x1="300" y1="200" x2="250" y2="248" marker-end="url(#ah-violet)"/>
+        <text class="tb" x="416" y="205" style="fill:var(--coral)">u (right)</text>
+        <text class="tb" x="308" y="100" style="fill:var(--teal)">v (up)</text>
+        <text class="tb" x="196" y="268" style="fill:var(--violet)">n (toward viewer)</text>
+        <circle cx="300" cy="200" r="6" style="fill:var(--ink)"/>
+        <text class="tb" x="312" y="224">P₀ (eye)</text>
+        <!-- line of sight -->
+        <line class="ds" x1="300" y1="200" x2="468" y2="118" marker-end="url(#ah-ink)"/>
+        <rect x="468" y="96" width="30" height="30" rx="3" class="fa"/>
+        <text class="tm" x="430" y="82">scene (look-at point)</text>
+        <text class="tm" x="352" y="146" transform="rotate(-26 352 146)">line of sight = −n direction</text>
+        <text class="tm" x="280" y="316" text-anchor="middle">Camera looks along −n. The view-up vector V only tells us which way is up.</text>
+      </svg>
+      <figcaption>Figure 2: Viewing reference point and the uvn axes</figcaption>
+    </figure>
+
+    <h3>How to build the uvn axes</h3>
+    <ol class="steps">
+      <li><b>n</b> = N / |N| (make N a unit vector).</li>
+      <li><b>u</b> = (V × n) / |V × n| (cross product, then normalise). This is the camera's right direction.</li>
+      <li><b>v</b> = n × u. This is the true up direction, perpendicular to both u and n.</li>
+    </ol>
+    <p>Notice that we do not need V to be exactly perpendicular to N. We only need it <mark>not to be parallel</mark> to N, otherwise V × n = 0.</p>
+
+    <h3>The viewing transformation matrix</h3>
+    <p>We want to change from world coordinates to viewing coordinates. This takes two steps:</p>
+    <ol class="steps">
+      <li><b>Translate</b> so that P<sub>0</sub> becomes the origin: matrix <b>T</b>.</li>
+      <li><b>Rotate</b> so that u, v, n line up with the x, y, z axes: matrix <b>R</b>.</li>
+    </ol>
+    <div class="eq">
+      <span>T =</span>
+      <table class="mat"><tr><td>1</td><td>0</td><td>0</td><td>−x<sub>0</sub></td></tr><tr><td>0</td><td>1</td><td>0</td><td>−y<sub>0</sub></td></tr><tr><td>0</td><td>0</td><td>1</td><td>−z<sub>0</sub></td></tr><tr><td>0</td><td>0</td><td>0</td><td>1</td></tr></table>
+      <span>R =</span>
+      <table class="mat"><tr><td>u<sub>x</sub></td><td>u<sub>y</sub></td><td>u<sub>z</sub></td><td>0</td></tr><tr><td>v<sub>x</sub></td><td>v<sub>y</sub></td><td>v<sub>z</sub></td><td>0</td></tr><tr><td>n<sub>x</sub></td><td>n<sub>y</sub></td><td>n<sub>z</sub></td><td>0</td></tr><tr><td>0</td><td>0</td><td>0</td><td>1</td></tr></table>
+    </div>
+    <div class="eq"><span><b>M<sub>view</sub> = R · T</b>, and a point is transformed as P<sub>vc</sub> = M<sub>view</sub> · P<sub>wc</sub></span></div>
+
+    <div class="box key"><span class="bt">Important points</span>
+      <ul>
+        <li><b>u, v, n are the rows of R.</b> Check: the first row dotted with u gives u·u = 1, and dotted with v or n gives 0, so u is sent to the x-axis.</li>
+        <li>With column vectors the matrix nearest the point acts first, so <mark>M = R · T</mark> means translate first, then rotate.</li>
+        <li>Another common API form is "look-at": give <b>eye</b>, <b>target</b> and <b>up</b>. Then N = eye − target. It is the same idea.</li>
+      </ul>
+    </div>
+
+    <div class="box ex"><span class="bt">Worked example</span>
+      <p><b>Question.</b> A camera is at P<sub>0</sub> = (5, 0, 0), looking at the origin, with V = (0, 1, 0). Find the viewing coordinates of the world point (0, 0, −3).</p>
+      <p><b>Step 1.</b> N = P<sub>0</sub> − target = (5, 0, 0), so <b>n</b> = (1, 0, 0).</p>
+      <p><b>Step 2.</b> V × n = (0,1,0) × (1,0,0) = (1·0 − 0·0, 0·1 − 0·0, 0·0 − 1·1) = (0, 0, −1). Its length is 1, so <b>u</b> = (0, 0, −1).</p>
+      <p><b>Step 3.</b> v = n × u = (1,0,0) × (0,0,−1) = (0·(−1) − 0·0, 0·0 − 1·(−1), 0) = (0, 1, 0), so <b>v</b> = (0, 1, 0).</p>
+      <p><b>Step 4 (translate).</b> P − P<sub>0</sub> = (0−5, 0, −3) = (−5, 0, −3).</p>
+      <p><b>Step 5 (rotate).</b> x′ = u·(−5,0,−3) = 3, y′ = v·(…) = 0, z′ = n·(…) = −5.</p>
+      <p><b>Answer:</b> (3, 0, −5). It is 5 units in front of the camera (z′ = −5 means in front, since the camera looks along −n) and 3 units to its right. Sanity check: standing on the +x axis and looking toward the origin with y up, the −z direction is on your right. ✔</p>
+    </div>
+
+    <div class="box warn"><span class="bt">Watch out</span>
+      <p>If the camera looks straight down (N along y) and you still give V = (0, 1, 0), then V is parallel to N and the cross product is zero. Choose a different up vector, such as (0, 0, −1).</p>
+    </div>
+  </section>
+
+  <!-- ===================== 4 ===================== -->
+  <section class="sec s4" id="s4">
+    <div class="sec-h"><span class="n">4</span><h2>The view volume</h2></div>
+
+    <p>A camera cannot see everything. Only a limited region of space ends up in the picture. That region is the <b>view volume</b>. Its shape depends on the projection we choose.</p>
+
+    <div class="box def"><span class="bt">Definitions</span>
+      <ul>
+        <li><b>View plane (projection plane):</b> the 2-D plane onto which the scene is projected. It is perpendicular to N.</li>
+        <li><b>Window:</b> a rectangle on the view plane (x<sub>wmin</sub>, x<sub>wmax</sub>, y<sub>wmin</sub>, y<sub>wmax</sub>) that decides which part of the plane is shown.</li>
+        <li><b>Projectors:</b> lines from scene points to the view plane.</li>
+        <li><b>Centre of projection (COP) or projection reference point (PRP):</b> the single point where all projectors meet in perspective projection.</li>
+        <li><b>Near (front) plane and far (back) plane:</b> two planes parallel to the view plane that limit the volume in depth.</li>
+        <li><b>View volume:</b> the 3-D region bounded by the window edges (extended along the projectors) and the near and far planes. <mark>Only what is inside it can appear in the picture.</mark></li>
+      </ul>
+    </div>
+
+    <div class="duo">
+      <figure>
+        <svg viewBox="0 0 360 230" role="img" aria-label="Side view of a parallel view volume: a rectangle between the near and far planes with parallel projectors">
+          <rect x="90" y="60" width="200" height="100" class="fb"/>
+          <line class="sa" x1="90" y1="60" x2="90" y2="160"/>
+          <line class="sa" x1="290" y1="60" x2="290" y2="160"/>
+          <line class="sb" x1="20" y1="60" x2="288" y2="60" marker-end="url(#ah-blue)"/>
+          <line class="sb" x1="20" y1="110" x2="288" y2="110" marker-end="url(#ah-blue)"/>
+          <line class="sb" x1="20" y1="160" x2="288" y2="160" marker-end="url(#ah-blue)"/>
+          <text class="tb" x="90" y="182" text-anchor="middle">near</text>
+          <text class="tb" x="290" y="182" text-anchor="middle">far</text>
+          <text class="tm" x="190" y="40" text-anchor="middle">projectors are parallel</text>
+          <text class="tm" x="180" y="214" text-anchor="middle">direction of projection</text>
+        </svg>
+        <figcaption>Figure 3a: Parallel projection gives a box (cuboid)</figcaption>
+      </figure>
+      <figure>
+        <svg viewBox="0 0 360 230" role="img" aria-label="Side view of a perspective view volume: a truncated pyramid from the centre of projection">
+          <polygon points="110,92 300,28 300,192 110,128" class="fa"/>
+          <line class="sc" x1="30" y1="110" x2="300" y2="20"/>
+          <line class="sc" x1="30" y1="110" x2="300" y2="200"/>
+          <line class="sa" x1="110" y1="92" x2="110" y2="128"/>
+          <line class="sa" x1="300" y1="28" x2="300" y2="192"/>
+          <line class="ds" x1="30" y1="110" x2="300" y2="110"/>
+          <circle cx="30" cy="110" r="6" style="fill:var(--ink)"/>
+          <text class="tb" x="14" y="136">COP</text>
+          <text class="tb" x="110" y="150" text-anchor="middle">near</text>
+          <text class="tb" x="300" y="214" text-anchor="middle">far</text>
+          <text class="tm" x="205" y="52" text-anchor="middle">projectors meet at COP</text>
+        </svg>
+        <figcaption>Figure 3b: Perspective projection gives a frustum</figcaption>
+      </figure>
+    </div>
+
+    <div class="tw"><table class="cmp">
+      <caption>View volume of each projection</caption>
+      <thead><tr><th>Feature</th><th>Parallel projection</th><th>Perspective projection</th></tr></thead>
+      <tbody>
+        <tr><td>Shape of view volume</td><td>Rectangular box (a slanted box for oblique projections)</td><td>Frustum: a pyramid with its tip cut off</td></tr>
+        <tr><td>Projectors</td><td>Parallel to each other</td><td>Meet at one point, the COP</td></tr>
+        <tr><td>Defined by</td><td>Window, direction of projection, near and far planes</td><td>COP, window, near and far planes (or field of view, aspect ratio, near, far)</td></tr>
+        <tr><td>Size of cross-section with depth</td><td>Same</td><td>Grows with distance from the COP</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="box key"><span class="bt">Why do we need a near plane and a far plane?</span>
+      <ul>
+        <li><b>Near plane:</b> removes objects behind or at the camera. In perspective, a point at the COP's depth would cause a divide-by-zero, and points behind it would flip upside down.</li>
+        <li><b>Far plane:</b> removes things too far away to matter. This saves work and keeps depth-buffer precision under control.</li>
+      </ul>
+    </div>
+
+    <div class="box real"><span class="bt">Real-world example</span>
+      <p>In many 3-D games, if you push the camera right up against a wall, you can suddenly see through it. That is the <b>near clipping plane</b> cutting the wall away. Fog and "pop-in" of distant trees are linked to the <b>far plane</b>.</p>
+    </div>
+
+    <h4>Perspective volume from field of view</h4>
+    <p>Many APIs describe a symmetric frustum with a vertical <b>field of view (FOV)</b>, an <b>aspect ratio</b> (width ÷ height), and the <b>near</b> and <b>far</b> distances. The half-height of the window at the near plane is h = near · tan(FOV / 2). A larger FOV looks like a wide-angle lens.</p>
+  </section>
+
+  <!-- ===================== 5 ===================== -->
+  <section class="sec s5 pb" id="s5">
+    <div class="sec-h"><span class="n">5</span><h2>Types of projection</h2></div>
+
+    <div class="box def"><span class="bt">Definition: projection</span>
+      <p>A projection maps points of a 3-D object onto a 2-D plane (the view plane) by following projectors from each point.</p>
+    </div>
+
+    <div class="tree">
+      <div class="tcol t-par"><b>Parallel projection</b>
+        <div class="sub"><b>Orthographic</b>: front, top, side views</div>
+        <div class="sub"><b>Axonometric</b>: isometric, dimetric, trimetric</div>
+        <div class="sub"><b>Oblique</b>: cavalier, cabinet</div>
+      </div>
+      <div class="tcol t-per"><b>Perspective projection</b>
+        <div class="sub"><b>One-point</b>: one vanishing point</div>
+        <div class="sub"><b>Two-point</b>: two vanishing points</div>
+        <div class="sub"><b>Three-point</b>: three vanishing points</div>
+      </div>
+    </div>
+
+    <h3>Parallel versus perspective</h3>
+    <div class="tw"><table class="cmp">
+      <caption>Parallel projection compared with perspective projection</caption>
+      <thead><tr><th>Feature</th><th>Parallel</th><th>Perspective</th></tr></thead>
+      <tbody>
+        <tr><td>Centre of projection</td><td>At infinity (only a direction)</td><td>A finite point</td></tr>
+        <tr><td>Size vs distance</td><td>Same size at any distance</td><td>Farther objects look smaller (perspective foreshortening)</td></tr>
+        <tr><td>Parallel lines</td><td>Stay parallel</td><td>Converge at a vanishing point (unless parallel to the view plane)</td></tr>
+        <tr><td>Realism</td><td>Less realistic</td><td>Realistic, like eyes and cameras</td></tr>
+        <tr><td>True measurements</td><td>Can be taken from the drawing</td><td>Not possible directly</td></tr>
+        <tr><td>Transformation</td><td>Affine (last row of matrix is 0 0 0 1)</td><td>Needs the perspective divide (w ≠ 1)</td></tr>
+        <tr><td>Typical use</td><td>CAD, engineering drawings, 2-D-style games</td><td>Games, films, VR, architectural rendering</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="box def"><span class="bt">Definition: vanishing point</span>
+      <p>A vanishing point is the point on the view plane where the projections of a set of parallel lines (not parallel to the view plane) appear to meet.</p>
+    </div>
+    <div class="box real"><span class="bt">Real-world examples</span>
+      <ul>
+        <li><b>Railway tracks</b> meeting at the horizon: one-point perspective.</li>
+        <li><b>Looking at the corner of a building:</b> two-point perspective.</li>
+        <li><b>Looking up at a skyscraper:</b> three-point perspective (the vertical edges also converge).</li>
+      </ul>
+    </div>
+
+    <h3>Kinds of parallel projection</h3>
+    <div class="tw"><table class="cmp">
+      <caption>Orthographic, axonometric and oblique projections</caption>
+      <thead><tr><th>Feature</th><th>Orthographic</th><th>Axonometric</th><th>Oblique</th></tr></thead>
+      <tbody>
+        <tr><td>Projectors vs view plane</td><td>Perpendicular</td><td>Perpendicular</td><td>Not perpendicular</td></tr>
+        <tr><td>View plane vs principal axes</td><td>Perpendicular to one axis (parallel to a principal plane)</td><td>Not perpendicular to any principal axis</td><td>Usually parallel to a principal plane</td></tr>
+        <tr><td>What you see</td><td>One face per view (front, top, side)</td><td>Several faces in one view</td><td>One face true-shape plus the depth faces</td></tr>
+        <tr><td>Main advantage</td><td>True lengths and angles on faces parallel to the plane</td><td>Shows 3-D shape in one picture</td><td>Easy to draw; the front face is undistorted</td></tr>
+        <tr><td>Main drawback</td><td>One view cannot show the full shape</td><td>Lengths are shortened (foreshortened)</td><td>Depth looks distorted</td></tr>
+        <tr><td>Examples</td><td>Engineering drawing views</td><td>Isometric, dimetric, trimetric</td><td>Cavalier, cabinet</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="box key"><span class="bt">Axonometric details</span>
+      <ul>
+        <li><b>Isometric:</b> all three axes are equally foreshortened and appear 120° apart. The scale factor on each axis is √(2/3), about 0.816.</li>
+        <li><b>Dimetric:</b> two axes are equally foreshortened. <b>Trimetric:</b> all three differ.</li>
+      </ul>
+    </div>
+
+    <h3>Cavalier versus cabinet</h3>
+    <p>Both are oblique projections. Let α be the angle between the projectors and the view plane. Depth lines (receding lines) are drawn at an angle φ and scaled.</p>
+    <figure>
+      <svg viewBox="0 0 440 240" role="img" aria-label="Two cubes drawn in oblique projection: cavalier with long receding edges and cabinet with half-length receding edges">
+        <!-- cavalier -->
+        <polygon class="fb" points="97,133 177,133 177,53 97,53"/>
+        <line class="th" x1="40" y1="190" x2="97" y2="133" style="stroke-dasharray:4 4"/>
+        <line class="th" x1="120" y1="190" x2="177" y2="133"/>
+        <line class="th" x1="120" y1="110" x2="177" y2="53"/>
+        <line class="th" x1="40" y1="110" x2="97" y2="53"/>
+        <polygon class="fa" points="40,190 120,190 120,110 40,110"/>
+        <text class="tb" x="110" y="214" text-anchor="middle">Cavalier</text>
+        <text class="tm" x="110" y="232" text-anchor="middle">α = 45°, depth at full length</text>
+        <!-- cabinet -->
+        <polygon class="fb" points="298,154 378,154 378,74 298,74"/>
+        <line class="th" x1="280" y1="190" x2="298" y2="154" style="stroke-dasharray:4 4"/>
+        <line class="th" x1="360" y1="190" x2="378" y2="154"/>
+        <line class="th" x1="360" y1="110" x2="378" y2="74"/>
+        <line class="th" x1="280" y1="110" x2="298" y2="74"/>
+        <polygon class="fa" points="280,190 360,190 360,110 280,110"/>
+        <text class="tb" x="330" y="214" text-anchor="middle">Cabinet</text>
+        <text class="tm" x="330" y="232" text-anchor="middle">α ≈ 63.4°, depth at half length</text>
+      </svg>
+      <figcaption>Figure 4: The same cube in cavalier and cabinet projection (front face is undistorted in both)</figcaption>
+    </figure>
+    <div class="tw"><table class="cmp">
+      <caption>Cavalier compared with cabinet</caption>
+      <thead><tr><th>Feature</th><th>Cavalier</th><th>Cabinet</th></tr></thead>
+      <tbody>
+        <tr><td>tan α</td><td>1 (α = 45°)</td><td>2 (α ≈ 63.4°)</td></tr>
+        <tr><td>Receding-line scale</td><td>1 (full length)</td><td>1/2 (half length)</td></tr>
+        <tr><td>Appearance</td><td>Depth looks too long</td><td>Looks more natural</td></tr>
+        <tr><td>Front face</td><td>True shape</td><td>True shape</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ===================== 6 ===================== -->
+  <section class="sec" id="s6">
+    <div class="sec-h"><span class="n">6</span><h2>General projection transforms (the mathematics)</h2></div>
+
+    <p><b>Convention used here.</b> We work in viewing coordinates. The camera looks along the <b>negative z-axis</b>, and the view plane is z = z<sub>vp</sub>. Other books may flip z or place the view plane elsewhere; the method is the same.</p>
+
+    <h3>6.1 Orthographic (parallel) projection</h3>
+    <p>Projectors are perpendicular to the view plane. Project onto the plane z = 0 by simply dropping z:</p>
+    <div class="eq">
+      <span>x<sub>p</sub> = x, &nbsp; y<sub>p</sub> = y, &nbsp; z<sub>p</sub> = 0 &nbsp;&nbsp;⇒&nbsp;&nbsp; M<sub>ortho</sub> =</span>
+      <table class="mat"><tr><td>1</td><td>0</td><td>0</td><td>0</td></tr><tr><td>0</td><td>1</td><td>0</td><td>0</td></tr><tr><td>0</td><td>0</td><td>0</td><td>0</td></tr><tr><td>0</td><td>0</td><td>0</td><td>1</td></tr></table>
+    </div>
+    <p class="tip">In real pipelines the z value is usually kept (not set to 0) because it is needed later for hidden-surface removal.</p>
+
+    <h3>6.2 Oblique parallel projection</h3>
+    <p>A point (x, y, z) is projected onto the plane z = 0 along a slanted direction. Let L<sub>1</sub> be the length of the projected image of a unit depth step, and φ its angle on the view plane. Then L<sub>1</sub> = 1 / tan α and:</p>
+    <div class="eq">
+      <span>x<sub>p</sub> = x + z · L<sub>1</sub> cos φ, &nbsp; y<sub>p</sub> = y + z · L<sub>1</sub> sin φ &nbsp;⇒&nbsp; M<sub>oblique</sub> =</span>
+      <table class="mat"><tr><td>1</td><td>0</td><td>L<sub>1</sub>cos φ</td><td>0</td></tr><tr><td>0</td><td>1</td><td>L<sub>1</sub>sin φ</td><td>0</td></tr><tr><td>0</td><td>0</td><td>0</td><td>0</td></tr><tr><td>0</td><td>0</td><td>0</td><td>1</td></tr></table>
+    </div>
+    <p>It is a <b>shear</b> in x and y proportional to z. Orthographic projection is the special case L<sub>1</sub> = 0 (α = 90°). Cavalier uses L<sub>1</sub> = 1; cabinet uses L<sub>1</sub> = 1/2. Common choices for φ are 30° or 45°.</p>
+    <div class="box ex"><span class="bt">Worked example</span>
+      <p>Find the cavalier projection (φ = 30°) of the point (2, 3, 4).</p>
+      <p>L<sub>1</sub> = 1. x<sub>p</sub> = 2 + 4 cos 30° = 2 + 3.464 = <b>5.464</b>; y<sub>p</sub> = 3 + 4 sin 30° = 3 + 2 = <b>5</b>. The image is (5.464, 5).</p>
+    </div>
+
+    <h3>6.3 Perspective projection</h3>
+    <p>Place the centre of projection at the origin and the view plane at z = −d (so the camera looks along −z). A point P = (x, y, z) with z &lt; 0 is in front of the camera. Look at the side view below and use <b>similar triangles</b>.</p>
+    <figure>
+      <svg viewBox="0 0 480 245" role="img" aria-label="Side view: centre of projection on the left, view plane at distance d, a point P farther away, and the ray crossing the view plane at P prime">
+        <line class="ds" x1="50" y1="170" x2="460" y2="170"/>
+        <line class="sa" x1="200" y1="55" x2="200" y2="195"/>
+        <text class="tb" x="206" y="66" style="fill:var(--amber)">view plane</text>
+        <line class="sc" x1="50" y1="170" x2="400" y2="70"/>
+        <line class="th" x1="400" y1="70" x2="400" y2="170" style="stroke-dasharray:4 4"/>
+        <line class="th" x1="200" y1="127" x2="200" y2="170" style="stroke-dasharray:4 4"/>
+        <circle cx="50" cy="170" r="6" style="fill:var(--ink)"/>
+        <text class="tb" x="28" y="160">COP</text>
+        <circle cx="400" cy="70" r="6" style="fill:var(--coral)"/>
+        <text class="tb" x="408" y="68">P (y, z)</text>
+        <circle cx="200" cy="127" r="6" style="fill:var(--teal)"/>
+        <text class="tb" x="152" y="118" style="fill:var(--teal)">P′ (y′)</text>
+        <text x="408" y="126">y</text>
+        <text x="208" y="152">y′</text>
+        <line class="th" x1="50" y1="192" x2="200" y2="192" marker-start="url(#ah-ink)" marker-end="url(#ah-ink)"/>
+        <text class="tb" x="125" y="208" text-anchor="middle">d</text>
+        <line class="th" x1="50" y1="220" x2="400" y2="220" marker-start="url(#ah-ink)" marker-end="url(#ah-ink)"/>
+        <text class="tb" x="225" y="238" text-anchor="middle">|z| (distance of P from the COP)</text>
+      </svg>
+      <figcaption>Figure 5: Similar triangles give y′ / d = y / |z|</figcaption>
+    </figure>
+    <div class="box key"><span class="bt">Perspective projection equations</span>
+      <div class="eq"><span>x<sub>p</sub> = x · d / (−z), &nbsp;&nbsp; y<sub>p</sub> = y · d / (−z), &nbsp;&nbsp; z<sub>p</sub> = −d</span></div>
+      <p>More generally, with the COP at (0, 0, z<sub>prp</sub>) and the view plane at z = z<sub>vp</sub>:</p>
+      <div class="eq"><span>x<sub>p</sub> = x · (z<sub>prp</sub> − z<sub>vp</sub>) / (z<sub>prp</sub> − z), &nbsp;&nbsp; y<sub>p</sub> = y · (z<sub>prp</sub> − z<sub>vp</sub>) / (z<sub>prp</sub> − z)</span></div>
+      <p>The key fact: <mark>x<sub>p</sub> and y<sub>p</sub> get smaller as the point gets farther away.</mark> That is perspective foreshortening.</p>
+    </div>
+
+    <h4>Matrix form and the perspective divide</h4>
+    <p>Division cannot be done by a plain matrix, so we use <b>homogeneous coordinates</b>. The matrix puts the divisor into the fourth coordinate w, and then we divide by w:</p>
+    <div class="eq">
+      <table class="mat"><tr><td>x<sub>h</sub></td></tr><tr><td>y<sub>h</sub></td></tr><tr><td>z<sub>h</sub></td></tr><tr><td>w</td></tr></table>
+      <span>=</span>
+      <table class="mat"><tr><td>1</td><td>0</td><td>0</td><td>0</td></tr><tr><td>0</td><td>1</td><td>0</td><td>0</td></tr><tr><td>0</td><td>0</td><td>1</td><td>0</td></tr><tr><td>0</td><td>0</td><td>−1/d</td><td>0</td></tr></table>
+      <table class="mat"><tr><td>x</td></tr><tr><td>y</td></tr><tr><td>z</td></tr><tr><td>1</td></tr></table>
+      <span>⇒ w = −z/d, then (x<sub>p</sub>, y<sub>p</sub>, z<sub>p</sub>) = (x<sub>h</sub>/w, y<sub>h</sub>/w, z<sub>h</sub>/w)</span>
+    </div>
+    <p>Check: x<sub>h</sub>/w = x / (−z/d) = x·d/(−z) ✔. And z<sub>h</sub>/w = z·d/(−z) = −d ✔ (the point lands on the view plane). This last step is called the <b>perspective divide</b> (or homogeneous divide).</p>
+
+    <div class="box ex"><span class="bt">Worked example</span>
+      <p>Take d = 2. Project A = (4, 6, −8) and B = (4, 6, −16). Both have the same x and y, but B is twice as far.</p>
+      <p>A: x<sub>p</sub> = 4·2/8 = <b>1</b>, y<sub>p</sub> = 6·2/8 = <b>1.5</b>.<br>
+         B: x<sub>p</sub> = 4·2/16 = <b>0.5</b>, y<sub>p</sub> = 6·2/16 = <b>0.75</b>.</p>
+      <p>Doubling the distance halves the image size. ✔</p>
+    </div>
+
+    <div class="box warn"><span class="bt">Special cases to remember</span>
+      <ul>
+        <li>A point exactly at the COP's depth makes the denominator zero. Points behind the COP get a negative divisor and appear flipped. This is why we <b>clip against the near plane first</b>.</li>
+        <li>Perspective projection keeps straight lines straight, but it does <b>not</b> keep parallel lines parallel or ratios of lengths.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ===================== 7 ===================== -->
+  <section class="sec s2" id="s7">
+    <div class="sec-h"><span class="n">7</span><h2>Normalisation and the canonical view volume</h2></div>
+
+    <p>View volumes come in many sizes and shapes, so writing a clipping routine for each one would be messy. Instead we first <b>transform every view volume into one standard shape</b>, the <b>canonical (normalised) view volume</b>, and clip against that.</p>
+
+    <div class="box def"><span class="bt">Definition: normalisation transformation</span>
+      <p>The normalisation transformation maps the given view volume into a standard cube (for example, −1 ≤ x, y, z ≤ 1; some books use 0 to 1 for z, or a different range). After it, clipping and the final mapping become simple.</p>
+    </div>
+
+    <h3>Parallel view volume to the canonical cube</h3>
+    <p>Translate the centre of the box to the origin, then scale each side to length 2. For x:</p>
+    <div class="eq"><span>x<sub>n</sub> = [ 2x − (x<sub>max</sub> + x<sub>min</sub>) ] / (x<sub>max</sub> − x<sub>min</sub>)</span></div>
+    <p>The same pattern is used for y (with y<sub>min</sub>, y<sub>max</sub>) and for z (with the near and far values). Example: for x<sub>min</sub> = 2 and x<sub>max</sub> = 6, the point x = 5 gives x<sub>n</sub> = (10 − 8)/4 = <b>0.5</b>. The edges map to −1 and +1. ✔</p>
+
+    <h3>Perspective view volume to the canonical cube</h3>
+    <p>The frustum is first "squeezed" into a box by the perspective transformation (including the divide by w), so that rays from the COP become parallel. After that it is treated like a parallel volume. Points near the camera are spread out and points far away are squashed together.</p>
+    <div class="box key"><span class="bt">Important points</span>
+      <ul>
+        <li>After a perspective transformation, <mark>depth (z) is non-linear</mark>: there is more precision close to the near plane and less far away.</li>
+        <li>So if you choose a tiny near value (like 0.0001) and a huge far value, distant surfaces can "fight" over the same depth value. This flicker is called <b>z-fighting</b>. Keep the near plane as far out as your scene allows.</li>
+      </ul>
+    </div>
+
+    <div class="box ex"><span class="bt">Going further (optional): OpenGL-style matrices</span>
+      <p>These are convention-specific (camera looks along −z; l, r, b, t, n, f are the left, right, bottom, top, near and far values; n and f are positive distances). Do not memorise them unless your syllabus asks for them.</p>
+      <div class="eq">
+        <span>Orthographic:</span>
+        <table class="mat"><tr><td>2/(r−l)</td><td>0</td><td>0</td><td>−(r+l)/(r−l)</td></tr><tr><td>0</td><td>2/(t−b)</td><td>0</td><td>−(t+b)/(t−b)</td></tr><tr><td>0</td><td>0</td><td>−2/(f−n)</td><td>−(f+n)/(f−n)</td></tr><tr><td>0</td><td>0</td><td>0</td><td>1</td></tr></table>
+      </div>
+      <div class="eq">
+        <span>Perspective:</span>
+        <table class="mat"><tr><td>2n/(r−l)</td><td>0</td><td>(r+l)/(r−l)</td><td>0</td></tr><tr><td>0</td><td>2n/(t−b)</td><td>(t+b)/(t−b)</td><td>0</td></tr><tr><td>0</td><td>0</td><td>−(f+n)/(f−n)</td><td>−2fn/(f−n)</td></tr><tr><td>0</td><td>0</td><td>−1</td><td>0</td></tr></table>
+      </div>
+      <p>In the perspective matrix the last row makes w = −z, which is exactly the divide that creates foreshortening.</p>
+    </div>
+  </section>
+
+  <!-- ===================== 8 ===================== -->
+  <section class="sec s3 pb" id="s8">
+    <div class="sec-h"><span class="n">8</span><h2>3-D clipping</h2></div>
+
+    <div class="box def"><span class="bt">Definition: 3-D clipping</span>
+      <p>3-D clipping is the process of removing (or trimming) the parts of objects that lie outside the view volume, so only the visible parts go on to be drawn.</p>
+    </div>
+
+    <p><b>Why clip?</b> (1) To avoid wasting time on invisible geometry. (2) To prevent errors, such as points behind the camera producing flipped or infinite coordinates. (3) To keep coordinates inside the range of the display device.</p>
+
+    <h3>Where do we clip?</h3>
+    <p>Against the canonical volume, clipping needs only six simple comparisons. A common form, using clip coordinates (x, y, z, w) before the divide, says a point is <b>inside</b> when:</p>
+    <div class="eq"><span>−w ≤ x ≤ w, &nbsp;&nbsp; −w ≤ y ≤ w, &nbsp;&nbsp; −w ≤ z ≤ w</span></div>
+    <p>After the perspective divide (w = 1) this becomes the familiar −1 ≤ x, y, z ≤ 1. Clipping <b>before</b> the divide is safer, because it removes points with w ≤ 0 (behind the camera) before we ever divide by w.</p>
+
+    <h3>Clipping algorithms at a glance</h3>
+    <div class="tw"><table class="cmp">
+      <caption>Common clipping algorithms and their 3-D use</caption>
+      <thead><tr><th>Algorithm</th><th>Clips</th><th>Idea in one line</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>Cohen–Sutherland (3-D)</td><td>Lines</td><td>6-bit region codes, quick accept or reject, then clip against one plane at a time</td><td>Fast when most lines are fully in or out</td></tr>
+        <tr><td>Liang–Barsky (3-D)</td><td>Lines</td><td>Parametric: find the range of the parameter u that stays inside all 6 planes</td><td>Fewer intersection calculations</td></tr>
+        <tr><td>Cyrus–Beck</td><td>Lines</td><td>Parametric clipping against any convex region</td><td>General convex volumes</td></tr>
+        <tr><td>Sutherland–Hodgman (3-D)</td><td>Polygons</td><td>Clip the polygon against one plane at a time, six times in a row</td><td>Output of one plane is the input of the next</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>3-D Cohen–Sutherland line clipping</h3>
+    <p>Each endpoint gets a <b>6-bit region code</b>. A bit is 1 if the point is outside that boundary. A typical bit order is shown below (the order and the meaning of near and far depend on the book and the z-direction).</p>
+    <div class="bits">
+      <div><b>1</b>Left<br>x &lt; x<sub>min</sub></div>
+      <div><b>2</b>Right<br>x &gt; x<sub>max</sub></div>
+      <div><b>3</b>Below<br>y &lt; y<sub>min</sub></div>
+      <div><b>4</b>Above<br>y &gt; y<sub>max</sub></div>
+      <div><b>5</b>Near<br>before near plane</div>
+      <div><b>6</b>Far<br>beyond far plane</div>
+    </div>
+    <ol class="steps">
+      <li>Compute the codes for both endpoints.</li>
+      <li><b>Trivial accept:</b> both codes are 000000, so the whole line is inside.</li>
+      <li><b>Trivial reject:</b> the bitwise AND of the two codes is not 000000, so both ends are outside the same plane and the line is completely outside.</li>
+      <li>Otherwise, pick an endpoint that is outside, find where the line meets the violated plane, replace that endpoint with the intersection, recompute its code, and repeat.</li>
+    </ol>
+    <p><b>Finding the intersection.</b> Write the line as P(u) = P<sub>1</sub> + u (P<sub>2</sub> − P<sub>1</sub>), 0 ≤ u ≤ 1. For the plane x = x<sub>min</sub>:</p>
+    <div class="eq"><span>u = (x<sub>min</sub> − x<sub>1</sub>) / (x<sub>2</sub> − x<sub>1</sub>), &nbsp; then y = y<sub>1</sub> + u (y<sub>2</sub> − y<sub>1</sub>), &nbsp; z = z<sub>1</sub> + u (z<sub>2</sub> − z<sub>1</sub>)</span></div>
+    <p>For a general plane Ax + By + Cz + D = 0: u = −(A x<sub>1</sub> + B y<sub>1</sub> + C z<sub>1</sub> + D) / (A Δx + B Δy + C Δz), where (Δx, Δy, Δz) = P<sub>2</sub> − P<sub>1</sub>.</p>
+
+    <div class="box ex"><span class="bt">Worked example</span>
+      <p><b>Question.</b> Clip the line P<sub>1</sub> = (−3, 0, 0) to P<sub>2</sub> = (1, 1.5, 0) against the cube −1 ≤ x, y, z ≤ 1.</p>
+      <p><b>Codes.</b> P<sub>1</sub>: x &lt; −1 so Left = 1, giving <b>100000</b>. P<sub>2</sub>: y &gt; 1 so Above = 1, giving <b>000100</b>. Neither is 000000, and the AND is 000000. So we must clip.</p>
+      <p><b>Clip P<sub>1</sub> at x = −1.</b> u = (−1 − (−3)) / (1 − (−3)) = 2/4 = 0.5. Then y = 0 + 0.5(1.5) = 0.75, z = 0. New P<sub>1</sub> = (−1, 0.75, 0), code 000000.</p>
+      <p><b>Clip P<sub>2</sub> at y = 1</b> (using the original endpoints). u = (1 − 0)/(1.5 − 0) = 2/3. Then x = −3 + (2/3)(4) = −0.333, z = 0. New P<sub>2</sub> = (−0.333, 1, 0), code 000000.</p>
+      <p><b>Answer:</b> the visible part is from (−1, 0.75, 0) to (−0.333, 1, 0). Check: the slope 1.5/4 = 0.375 and (1 − 0.75)/(−0.333 + 1) = 0.375 ✔.</p>
+    </div>
+
+    <h3>Polygon clipping in 3-D</h3>
+    <p>Sutherland–Hodgman clips against the six planes one after another. For each edge of the polygon (start S, end E) and a plane, there are four cases: both inside (output E), S inside and E outside (output the intersection), both outside (output nothing), S outside and E inside (output the intersection and E).</p>
+    <p>Note that a triangle cut by one plane may become a <b>quadrilateral</b>, so the engine usually re-triangulates the result.</p>
+
+    <div class="box key"><span class="bt">Clipping versus culling</span>
+      <p><b>Clipping</b> trims geometry that crosses the view-volume boundary. <b>Culling</b> throws away whole objects or faces without trimming, for example frustum culling (object completely outside) or back-face culling (faces pointing away from the camera).</p>
+    </div>
+  </section>
+
+  <!-- ===================== 9 ===================== -->
+  <section class="sec s4" id="s9">
+    <div class="sec-h"><span class="n">9</span><h2>Putting it all together</h2></div>
+
+    <h3>The complete transformation</h3>
+    <div class="eq"><span>P<sub>screen</sub> = M<sub>viewport</sub> · [ clip + divide by w ] · M<sub>projection</sub> · M<sub>view</sub> · M<sub>model</sub> · P<sub>object</sub></span></div>
+    <p>Read it from right to left: object, to world, to camera, to projected, clipped, divided, and finally to pixels.</p>
+
+    <h3>The last step: viewport transformation</h3>
+    <p>Suppose the normalised window runs from −1 to +1 in x and y, and the viewport has its corner at (v<sub>x</sub>, v<sub>y</sub>) with width W and height H pixels. Then:</p>
+    <div class="eq"><span>x<sub>s</sub> = v<sub>x</sub> + (x<sub>n</sub> + 1)/2 · W, &nbsp;&nbsp; y<sub>s</sub> = v<sub>y</sub> + (1 − y<sub>n</sub>)/2 · H &nbsp; (y flipped if screen y grows downward)</span></div>
+
+    <div class="box ex"><span class="bt">End-to-end worked example</span>
+      <p><b>Setup.</b> Camera at (0, 0, 5), looking at the origin, up = (0, 1, 0). Perspective with d = 2 (view plane at z = −2). The window is −1 to 1 in both directions, mapped to a 400 × 400 pixel viewport at (0, 0). Find the pixel for the world point P = (1, 1, 0).</p>
+      <ol class="steps">
+        <li><b>Viewing.</b> n = (0, 0, 1), u = (1, 0, 0), v = (0, 1, 0), so R is the identity. Translation by (0, 0, −5): P<sub>vc</sub> = (1, 1, −5). The point is 5 units in front of the camera.</li>
+        <li><b>Projection.</b> x<sub>p</sub> = 1 · 2 / 5 = 0.4, y<sub>p</sub> = 1 · 2 / 5 = 0.4.</li>
+        <li><b>Clipping.</b> 0.4 lies in [−1, 1], and the point is between the near and far planes, so it is inside.</li>
+        <li><b>Viewport.</b> x<sub>s</sub> = (0.4 + 1)/2 · 400 = 280. y<sub>s</sub> = (1 − 0.4)/2 · 400 = 120 (flipped).</li>
+      </ol>
+      <p><b>Answer:</b> pixel (280, 120).</p>
+    </div>
+  </section>
+
+  <!-- ===================== 10 ===================== -->
+  <section class="sec s5" id="s10">
+    <div class="sec-h"><span class="n">10</span><h2>Common student mistakes</h2></div>
+    <div class="tw"><table class="cmp">
+      <caption>Mistakes to avoid, and how to fix them</caption>
+      <thead><tr><th>Mistake</th><th>Why it is wrong</th><th>Correct idea</th></tr></thead>
+      <tbody>
+        <tr><td>Writing M = T · R for the viewing matrix</td><td>With column vectors the rightmost matrix acts first</td><td>M = R · T: translate, then rotate</td></tr>
+        <tr><td>Forgetting to divide by w after perspective</td><td>The matrix only builds w; the shrinking happens in the divide</td><td>Always compute (x/w, y/w, z/w)</td></tr>
+        <tr><td>Using columns of R as u, v, n for world to view</td><td>That matrix does the reverse (view to world)</td><td>u, v, n are the <b>rows</b> of R</td></tr>
+        <tr><td>Choosing a view-up vector parallel to N</td><td>The cross product V × n becomes zero</td><td>Pick an up vector not parallel to N</td></tr>
+        <tr><td>Forgetting the camera looks along −n (−z)</td><td>Depth then has the wrong sign; the object seems behind the camera</td><td>In front means negative z in viewing coordinates (in this convention)</td></tr>
+        <tr><td>Confusing the window with the viewport</td><td>The window is on the view plane; the viewport is on the display</td><td>Window selects "what"; viewport selects "where on screen"</td></tr>
+        <tr><td>Setting the near plane to 0</td><td>It causes division by zero and ruins depth precision</td><td>Use a small positive near distance</td></tr>
+        <tr><td>Saying cavalier and cabinet are the same</td><td>Depth scale differs (1 vs 1/2)</td><td>Cavalier: tan α = 1; cabinet: tan α = 2</td></tr>
+        <tr><td>Expecting vanishing points in parallel projection</td><td>Projectors never meet there</td><td>Vanishing points exist only in perspective</td></tr>
+        <tr><td>Believing perspective keeps parallel lines parallel</td><td>Lines not parallel to the view plane converge</td><td>Lines stay lines, but parallelism and length ratios are lost</td></tr>
+        <tr><td>Clipping after the perspective divide without care</td><td>Points behind the camera can end up looking valid</td><td>Clip against the near plane before (or in a way that handles) the divide</td></tr>
+        <tr><td>Mixing up modeling and viewing transformations</td><td>One moves objects, the other moves the camera</td><td>Moving the camera right is the same as moving the whole world left</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ===================== 11 ===================== -->
+  <section class="sec" id="s11">
+    <div class="sec-h"><span class="n">11</span><h2>Interview questions (with short answers)</h2></div>
+
+    <div class="qa"><div class="q">1. What is the difference between the viewing transformation and the projection transformation?</div>
+      <div class="a">The viewing transformation changes coordinates from world to camera space (it is a rigid motion: translate and rotate). The projection transformation reduces 3-D to 2-D, using parallel or perspective rules.</div></div>
+    <div class="qa"><div class="q">2. Why do we use homogeneous coordinates in 3-D graphics?</div>
+      <div class="a">They let translation and perspective be written as 4×4 matrices, so all steps can be combined by multiplication. The fourth coordinate w carries the divisor for perspective.</div></div>
+    <div class="qa"><div class="q">3. What is the perspective divide, and when does it happen?</div>
+      <div class="a">Dividing x, y and z by w after the projection matrix is applied. It happens after clipping in clip space in modern pipelines, and it creates the "farther looks smaller" effect.</div></div>
+    <div class="qa"><div class="q">4. Why do we need near and far clipping planes?</div>
+      <div class="a">Near removes things behind or at the camera and avoids divide-by-zero. Far removes unneeded distant geometry and limits the depth range so depth precision is usable.</div></div>
+    <div class="qa"><div class="q">5. How do you construct a camera coordinate system from eye, target and up?</div>
+      <div class="a">n = normalise(eye − target); u = normalise(up × n); v = n × u. Put them in the rows of a rotation matrix and multiply by a translation of −eye.</div></div>
+    <div class="qa"><div class="q">6. Why does perspective projection keep lines straight but not parallel?</div>
+      <div class="a">Projectors through a line form a plane, which meets the view plane in a line. But parallel lines not parallel to the view plane head toward a common vanishing point.</div></div>
+    <div class="qa"><div class="q">7. What is the difference between clipping and culling?</div>
+      <div class="a">Clipping trims geometry crossing the view-volume boundary. Culling discards whole objects or faces (for example back faces or objects fully outside) without trimming.</div></div>
+    <div class="qa"><div class="q">8. When would you choose orthographic over perspective?</div>
+      <div class="a">When true sizes and parallel lines must be preserved: CAD, technical drawings, 2-D-style games, UI overlays and shadow-map rendering.</div></div>
+    <div class="qa"><div class="q">9. What is z-fighting and how do you reduce it?</div>
+      <div class="a">Flickering when two surfaces have almost the same depth value, worse with a very small near and a very large far plane. Increase the near distance, reduce the far distance, or use higher-precision depth buffers.</div></div>
+    <div class="qa"><div class="q">10. Why is the view volume normalised before clipping?</div>
+      <div class="a">So one simple clipping routine (against a fixed cube) works for every projection and every camera setting.</div></div>
+  </section>
+
+  <!-- ===================== 12 ===================== -->
+  <section class="sec s2" id="s12">
+    <div class="sec-h"><span class="n">12</span><h2>University examination questions (practice set)</h2></div>
+    <p class="tip">These are practice questions in the usual style. Marks are only suggestions; adjust them to your own university's pattern.</p>
+
+    <h3>Short answer (2 marks)</h3>
+    <ol class="qlist">
+      <li>Define view volume. How does it differ for parallel and perspective projection?</li>
+      <li>List, in order, the stages of the 3-D viewing pipeline.</li>
+      <li>What are the view reference point, view-plane normal and view-up vector?</li>
+      <li>Define vanishing point. How many principal vanishing points can a perspective drawing have?</li>
+      <li>Differentiate between cavalier and cabinet projections.</li>
+      <li>Write the 6-bit region code scheme used for 3-D line clipping.</li>
+    </ol>
+
+    <h3>Medium answer (5 marks)</h3>
+    <ol class="qlist">
+      <li>Explain how the viewing coordinate system is set up and give the matrix that transforms world coordinates to viewing coordinates.</li>
+      <li>Classify projections with a neat diagram and compare parallel and perspective projection.</li>
+      <li>Derive the perspective projection equations using similar triangles.</li>
+      <li>Explain the 3-D Cohen–Sutherland clipping algorithm.</li>
+      <li>Explain why normalisation of the view volume is needed.</li>
+    </ol>
+
+    <h3>Numerical problems (5 to 10 marks)</h3>
+    <ol class="qlist">
+      <li>A camera is at (0, 0, 10) looking at the origin with up vector (0, 1, 0). Find the viewing coordinates of the world point (3, 4, 2), and then its perspective projection on a view plane at distance d = 4.
+        <span class="hint"><b>Answer:</b> n = (0,0,1), u = (1,0,0), v = (0,1,0). P<sub>vc</sub> = (3, 4, −8). x<sub>p</sub> = 3·4/8 = 1.5, y<sub>p</sub> = 4·4/8 = 2. Result: (1.5, 2).</span></li>
+      <li>Find the cabinet projection (φ = 45°) of the point (1, 2, 4).
+        <span class="hint"><b>Answer:</b> L<sub>1</sub> = 0.5. x<sub>p</sub> = 1 + 4(0.5)cos 45° = 1 + 1.414 = 2.414; y<sub>p</sub> = 2 + 1.414 = 3.414.</span></li>
+      <li>For the canonical cube −1 ≤ x, y, z ≤ 1, find the region code of the point (2, −3, 0.5) using the order Left, Right, Below, Above, Near, Far (take Near as z &lt; −1 and Far as z &gt; 1). Decide whether the point is inside.
+        <span class="hint"><b>Answer:</b> x &gt; 1 so Right = 1; y &lt; −1 so Below = 1; z is inside. Code = 010100, not 000000, so the point is outside.</span></li>
+      <li>Map the parallel view volume with x from 2 to 6 into the canonical cube in x. Find the new x for x = 3.
+        <span class="hint"><b>Answer:</b> x<sub>n</sub> = (2·3 − 8)/4 = −0.5.</span></li>
+    </ol>
+  </section>
+
+  <!-- ===================== 13 ===================== -->
+  <section class="sec s3" id="s13">
+    <div class="sec-h"><span class="n">13</span><h2>5-minute classroom activity: "Be the camera"</h2></div>
+    <p><b>Format:</b> pairs. <b>You need:</b> a pen, a book or box, and a sheet of paper.</p>
+
+    <ol class="steps">
+      <li><b>Minute 0 to 1: Perspective test.</b> Hold a pen at arm's length and look at it with one eye closed. Slowly move it closer, then farther. What happens to its apparent size? Name the effect. <i>(Perspective foreshortening.)</i></li>
+      <li><b>Minute 1 to 2: Parallel versus perspective.</b> Hold a book face-on, like a front view. Then rotate it slowly until you see two faces. Which view looks like an orthographic front view? Which looks like an axonometric view?</li>
+      <li><b>Minute 2 to 4: Mini numerical.</b> Camera at (0, 0, 5) looking at the origin, up = (0, 1, 0), perspective with d = 2. Project the world points A = (2, 2, 1) and B = (2, 2, −3). Hint: subtract 5 from z to get viewing coordinates, then use x<sub>p</sub> = x·d / (−z).</li>
+      <li><b>Minute 4 to 5: Share and check.</b> Compare answers with the next pair and name the pipeline step you used at each stage.</li>
+    </ol>
+
+    <div class="box key"><span class="bt">Teacher's answer key</span>
+      <ul>
+        <li>A: viewing coordinates (2, 2, −4), so x<sub>p</sub> = 2·2/4 = <b>1</b>, y<sub>p</sub> = <b>1</b>.</li>
+        <li>B: viewing coordinates (2, 2, −8), so x<sub>p</sub> = 2·2/8 = <b>0.5</b>, y<sub>p</sub> = <b>0.5</b>.</li>
+        <li>Discussion: B is farther away, so its image is half the size, even though A and B have the same x and y. Steps used: viewing transformation, then projection.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ===================== 14 ===================== -->
+  <section class="sec s4" id="s14">
+    <div class="sec-h"><span class="n">14</span><h2>Short recap</h2></div>
+
+    <div class="box key"><span class="bt">The whole unit in ten lines</span>
+      <ol>
+        <li>3-D viewing decides what part of the scene is seen, from where, and how it is flattened to 2-D.</li>
+        <li>Pipeline: modeling → world → viewing → projection (normalised) → clipping → device coordinates.</li>
+        <li>Viewing coordinates come from <b>P<sub>0</sub>, N and V</b>: n = N/|N|, u = V × n (normalised), v = n × u.</li>
+        <li>M<sub>view</sub> = <b>R · T</b>, where u, v, n are the rows of R.</li>
+        <li>View volume: <b>box</b> for parallel, <b>frustum</b> for perspective; near and far planes limit depth.</li>
+        <li>Parallel: orthographic, axonometric (isometric, dimetric, trimetric), oblique (cavalier tan α = 1, cabinet tan α = 2).</li>
+        <li>Perspective: x<sub>p</sub> = x·d/(−z); farther means smaller; one-, two- and three-point types.</li>
+        <li>Perspective needs <b>homogeneous coordinates and the divide by w</b>.</li>
+        <li>Normalisation maps any view volume to a canonical cube, so clipping is simple.</li>
+        <li>Clip against six planes using region codes (lines) or Sutherland–Hodgman (polygons); then apply the viewport transformation.</li>
+      </ol>
+    </div>
+
+    <div class="tw"><table class="cmp">
+      <caption>Quick formula sheet</caption>
+      <thead><tr><th>What</th><th>Formula</th></tr></thead>
+      <tbody>
+        <tr><td>Camera axes</td><td>n = N/|N|, u = (V × n)/|V × n|, v = n × u</td></tr>
+        <tr><td>Viewing matrix</td><td>M<sub>view</sub> = R · T, with T = translate(−P<sub>0</sub>)</td></tr>
+        <tr><td>Oblique projection</td><td>x<sub>p</sub> = x + z L<sub>1</sub> cos φ, y<sub>p</sub> = y + z L<sub>1</sub> sin φ, L<sub>1</sub> = 1/tan α</td></tr>
+        <tr><td>Perspective (view plane z = −d)</td><td>x<sub>p</sub> = x d/(−z), y<sub>p</sub> = y d/(−z)</td></tr>
+        <tr><td>Parallel normalisation (x)</td><td>x<sub>n</sub> = [2x − (x<sub>max</sub> + x<sub>min</sub>)]/(x<sub>max</sub> − x<sub>min</sub>)</td></tr>
+        <tr><td>Line parameter</td><td>P(u) = P<sub>1</sub> + u(P<sub>2</sub> − P<sub>1</sub>); u = (x<sub>min</sub> − x<sub>1</sub>)/(x<sub>2</sub> − x<sub>1</sub>)</td></tr>
+        <tr><td>Viewport (x)</td><td>x<sub>s</sub> = v<sub>x</sub> + (x<sub>n</sub> + 1)/2 · W</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ===================== 15 ===================== -->
+  <section class="sec s5" id="s15">
+    <div class="sec-h"><span class="n">15</span><h2>Five long-answer questions</h2></div>
+    <ol class="qlist">
+      <li><b>Explain the 3-D viewing pipeline with a neat diagram.</b> Name each coordinate system and each transformation, and say what each one does.
+        <span class="hint">A good answer: Figure 1 redrawn, one line per stage, a note on where clipping happens, and a real-world example (the camera analogy).</span></li>
+      <li><b>Derive the viewing transformation matrix</b> from the view reference point, view-plane normal and view-up vector. Solve a numerical example.
+        <span class="hint">A good answer: definitions, the n, u, v construction, matrices T and R, M = R · T, and a worked example like the one in Section 3.</span></li>
+      <li><b>Describe the view volumes for parallel and perspective projection.</b> Classify the types of projection and compare them in a table.
+        <span class="hint">A good answer: Figures 3a and 3b, the projection tree, the comparison tables, and uses of each type.</span></li>
+      <li><b>Derive the perspective projection equations and matrix.</b> Explain homogeneous coordinates, the perspective divide and vanishing points, and solve a numerical.
+        <span class="hint">A good answer: Figure 5 with similar triangles, x<sub>p</sub> = x·d/(−z), the 4×4 matrix with w = −z/d, and a numerical like A and B in Section 6.</span></li>
+      <li><b>Explain 3-D clipping.</b> Why is it needed? Describe the canonical view volume, the 6-bit region codes and the line-clipping steps, and explain polygon clipping.
+        <span class="hint">A good answer: reasons to clip, the six inequalities, trivial accept and reject, plane intersection formula, the worked example in Section 8, and Sutherland–Hodgman in four cases.</span></li>
+    </ol>
+  </section>
+</main>
+
+<footer>
+  Computer Graphics · Unit 4 · Classroom notes. Conventions (axis directions, matrix layout, clipping order) vary between textbooks and APIs, so always match your prescribed text in examinations.
+</footer>
+
+</body>
+</html>
